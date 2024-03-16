@@ -24,4 +24,21 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+app.all('*', (req, res, next) => {
+  const err = new Error(`Can't find ${req.originalUrl} on this server!`);
+  err.statusCode = 404;
+  err.status = 'fail';
+  next(err);
+});
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const status = err.status || 'error';
+
+  res.status(statusCode).json({
+    status,
+    message: err.message,
+  });
+});
+
 module.exports = app;
